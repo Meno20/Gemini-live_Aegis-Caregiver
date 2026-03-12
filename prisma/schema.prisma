@@ -1,0 +1,252 @@
+// Aegis Caregiver - Dementia Patient Care Assistant
+// Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication (NextAuth.js)
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("caregiver") // admin, caregiver
+  
+  // Relations
+  accounts  Account[]
+  sessions  SessionAuth[]
+  patientAccess PatientAccess[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model SessionAuth {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Patient-User access relation (for multi-patient support)
+model PatientAccess {
+  id        String   @id @default(cuid())
+  userId    String
+  patientId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  role      String   @default("viewer") // owner, editor, viewer
+  createdAt DateTime @default(now())
+
+  @@unique([userId, patientId])
+}
+
+// Core Patient Information
+model Patient {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Basic Information
+  fullName       String
+  preferredName  String
+  dateOfBirth    DateTime
+  pronouns       String   @default("they/them")
+  
+  // Diagnosis
+  diagnosisStage String   @default("mild") // mild, moderate, severe
+  diagnosisType  String   @default("Alzheimer's")
+  diagnosisDate  DateTime?
+  
+  // Family Information
+  spouseName       String?
+  spouseStatus     String? // "living", "deceased (year)"
+  childrenNames    String? // JSON array as string
+  grandchildrenNames String? // JSON array as string
+  
+  // Life History
+  occupation       String?
+  careerHighlights String?
+  hometown         String?
+  
+  // Preferences
+  favoriteMusic     String?
+  favoriteMusicEra  String?
+  favoriteFoods     String?
+  hobbies           String? // JSON array as string
+  calmingActivities String? // JSON array as string
+  
+  // Communication
+  communicationTips String?
+  topicsThatEngage  String? // JSON array as string
+  topicsToAvoid     String? // JSON array as string
+  triggersToAvoid   String? // JSON array as string
+  
+  // Medical
+  medications       String? // JSON array as string
+  medicalConditions String? // JSON array as string
+  allergies         String? // JSON array as string
+  mobilityLevel     String  @default("ambulatory")
+  fallRisk          String  @default("low")
+  
+  // Care Team
+  primaryCaregiverName         String
+  primaryCaregiverRelationship String
+  emergencyContacts            String? // JSON array as string
+  
+  // Behavioral Patterns
+  typicalWakeTime   String?
+  typicalSleepTime  String?
+  sundowningRisk    String  @default("unknown")
+  wanderingHistory  Boolean @default(false)
+  aggressionHistory Boolean @default(false)
+  
+  // Settings
+  voicePreference   String  @default("warm_female")
+  volumePreference  String  @default("normal")
+  
+  // Relations
+  lifeStories   LifeStory[]
+  sessions      MonitoringSession[]
+  alerts        Alert[]
+  patterns      Pattern[]
+  conversations Conversation[]
+  patientAccess PatientAccess[]
+}
+
+// Life Stories for Reminiscence Therapy
+model LifeStory {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  title       String
+  content     String
+  category    String // career, family, travel, hobbies
+  decade      String? // "1960s", "1980s"
+  peopleMentioned String? // JSON array as string
+  emotions    String? // JSON array as string
+}
+
+// Monitoring Sessions
+model MonitoringSession {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  endedAt   DateTime?
+  
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  status      String @default("active") // active, ended
+  startReason String?
+  endReason   String?
+  
+  // Session metrics
+  totalAlerts     Int     @default(0)
+  interventions   Int     @default(0)
+  avgAgitation    Float?
+  wanderingEvents Int     @default(0)
+  
+  // State snapshots (JSON)
+  finalState String?
+}
+
+// Alerts and Notifications
+model Alert {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  type      String // wandering, agitation, health, safety, medication, meal
+  message   String
+  urgency   String @default("normal") // low, normal, high, emergency
+  metadata  String? // JSON
+  
+  status        String  @default("pending") // pending, acknowledged, resolved
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+  resolution    String?
+  
+  sessionId String?
+}
+
+// Behavioral Patterns (learned over time)
+model Pattern {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  patternType   String // sundowning, wandering_risk, agitation_trigger, sleep_pattern
+  confidence    Float  // 0.0 - 1.0
+  description   String
+  recommendation String?
+  
+  // Pattern data (JSON)
+  triggerConditions String?
+  occurrenceData    String?
+  
+  isActive Boolean @default(true)
+}
+
+// Conversation History
+model Conversation {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  sessionId String?
+  
+  speaker   String // patient, aegis, caregiver
+  content   String
+  isRepeatedQuestion Boolean @default(false)
+  topic     String?
+  
+  // Analysis
+  sentimentScore Float?
+  agitationLevel Float?
+  detectedIntent String?
+}
