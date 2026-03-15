@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isCaregiver() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/caregivers/$(request.auth.uid));
+    }
+    
+    function isCaregiverOf(patientId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/caregiver_patients/$(request.auth.uid + '_' + patientId));
+    }
+
+    // ============================================
+    // CAREGIVER PROFILE
+    // ============================================
+    match /caregivers/{caregiverId} {
+      allow read: if isAuthenticated() && request.auth.uid == caregiverId;
+      allow write: if isAuthenticated() && request.auth.uid == caregiverId;
+    }
+
+    // ============================================
+    // CAREGIVER-PATIENT ASSIGNMENTS
+    // ============================================
+    match /caregiver_patients/{assignmentId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // admin only (via Admin SDK)
+    }
+
+    // ============================================
+    // PATIENTS — Caregiver can read & write their assigned patients
+    // ============================================
+    match /patients/{patientId} {
+      allow read: if isCaregiverOf(patientId);
+      allow write: if isCaregiverOf(patientId);
+
+      // All subcollections follow same rule
+      match /{subcollection}/{docId} {
+        allow read: if isCaregiverOf(patientId);
+        allow write: if isCaregiverOf(patientId);
+      }
+    }
+
+    // ============================================
+    // AI-WRITTEN LOGS — Server writes via Admin SDK
+    // Caregivers can read but NOT write these
+    // (prevents tampering with AI observations)
+    // ============================================
+    match /ai_logs/{logId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Admin SDK only (server-side)
+    }
+
+    // ============================================
+    // ALERTS — Caregivers can read and acknowledge
+    // ============================================
+    match /alerts/{alertId} {
+      allow read: if isAuthenticated();
+      allow update: if isAuthenticated() 
+        && request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['status', 'acknowledgedBy', 'acknowledgedAt']);
+      allow create, delete: if false; // Admin SDK only
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

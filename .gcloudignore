@@ -1,0 +1,13 @@
+.next/
+node_modules/
+.git/
+.env
+.env.*
+*.md
+.DS_Store
+.firebase/
+.vscode/
+package-lock.json
+server.log
+debug_output.txt
+Gemini-live-audio.code-workspace
