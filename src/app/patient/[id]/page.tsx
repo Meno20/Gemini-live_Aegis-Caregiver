@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VoiceInteractionPanel } from "@/components/dashboard/VoiceInteractionPanel";
-import { VisionMonitorPanel } from "@/components/dashboard/VisionMonitorPanel";
+import CameraViewer from "@/components/video/camera-viewer";
 import { Patient, Message, ConversationsMap } from "@/types/dashboard";
 import { patients } from "@/lib/constants";
 import Link from "next/link";
@@ -24,105 +24,18 @@ export default function PatientDashboard({ params }: { params: Promise<{ id: str
     bill: [],
   }));
 
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<{safetyLevel: string; concerns: string[]; patientState?: string} | null>(null);
-  
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const addMessage = useCallback((patientId: string, message: Message) => {
+  const addMessage = useCallback((message: Message) => {
     setConversations(prev => ({
       ...prev,
-      [patientId]: [...(prev[patientId] || []), message]
+      [patient.id]: [...(prev[patient.id] || []), { ...message, id: Date.now().toString() }]
     }));
-  }, []);
-
-  const speakText = async (text: string) => {
-    try {
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice: 'tongtong', speed: 0.9 }),
-      });
-
-      if (response.ok) {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        if (audioRef.current) audioRef.current.pause();
-        audioRef.current = new Audio(audioUrl);
-        audioRef.current.play();
-      }
-    } catch (error) {
-      console.error('Error speaking text:', error);
-    }
-  };
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setIsStreaming(true);
-      }
-    } catch (error) {
-      console.error("Camera error:", error);
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    setIsStreaming(false);
-    setAnalysis(null);
-  };
-
-  const analyzeFrame = async () => {
-    if (!videoRef.current || !canvasRef.current || !patient) return;
-    
-    setIsAnalyzing(true);
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    ctx.drawImage(videoRef.current, 0, 0);
-    
-    const imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
-
-    try {
-      const response = await fetch('/api/vision', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageBase64,
-          patientContext: patient,
-          analysisType: 'safety',
-        }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setAnalysis(data.analysis);
-        if (!isMuted && data.analysis.concerns?.length > 0) {
-          const concernText = `Safety analysis: ${data.analysis.safetyLevel}. ${data.analysis.concerns.join('. ')}`;
-          await speakText(concernText);
-        }
-      }
-    } catch (error) {
-      console.error("Vision analysis error:", error);
-    }
-    setIsAnalyzing(false);
-  };
+  }, [patient.id]);
 
   useEffect(() => {
     return () => {
       if (audioRef.current) audioRef.current.pause();
-      if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
     };
   }, []);
 
@@ -201,17 +114,7 @@ export default function PatientDashboard({ params }: { params: Promise<{ id: str
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="mt-6"
               >
-                <VisionMonitorPanel
-                  patient={patient}
-                  isStreaming={isStreaming}
-                  isAnalyzing={isAnalyzing}
-                  analysis={analysis}
-                  videoRef={videoRef}
-                  canvasRef={canvasRef}
-                  onStartCamera={startCamera}
-                  onStopCamera={stopCamera}
-                  onAnalyze={analyzeFrame}
-                />
+                <CameraViewer />
               </motion.div>
             </TabsContent>
           </AnimatePresence>

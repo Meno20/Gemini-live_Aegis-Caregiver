@@ -16,6 +16,6 @@ export default function Home() {
         <div className="h-12 w-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
         <p className="text-emerald-500 font-medium animate-pulse">Loading Aegis Portal...</p>
       </div>
-    </Tabs>
+    </div>
   );
 }

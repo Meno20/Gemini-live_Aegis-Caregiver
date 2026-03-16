@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import {
   Shield, Bell, Activity, Users, Brain, Heart,
-  MessageCircle, Settings, Menu, X, 
+  MessageCircle, Settings, Menu, X,
   Volume2, VolumeX, ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export default function CarerDashboard() {
   const [isMuted, setIsMuted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
-  
+
   const [conversations, setConversations] = useState<ConversationsMap>(() => ({
     maggie: [],
     bill: [],
@@ -50,8 +51,8 @@ export default function CarerDashboard() {
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<{safetyLevel: string; concerns: string[]; patientState?: string} | null>(null);
-  
+  const [analysis, setAnalysis] = useState<{ safetyLevel: string; concerns: string[]; patientState?: string } | null>(null);
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -122,11 +123,11 @@ export default function CarerDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={openPatientDashboard}
-                className="hidden md:flex items-center gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950"
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openPatientDashboard}
+              className="hidden md:flex items-center gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950"
             >
               <ExternalLink className="h-4 w-4" />
               Launch Patient UI
@@ -181,14 +182,14 @@ export default function CarerDashboard() {
               ))}
             </nav>
             <div className="pt-4 mt-auto">
-                <Button 
-                    variant="default" 
-                    className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    onClick={openPatientDashboard}
-                >
-                    <ExternalLink className="h-4 w-4" />
-                    Patient Dashboard
-                </Button>
+              <Button
+                variant="default"
+                className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={openPatientDashboard}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Patient Dashboard
+              </Button>
             </div>
           </div>
         </aside>
@@ -217,19 +218,34 @@ export default function CarerDashboard() {
             {currentView === "dashboard" && (
               <div key="dashboard" className="space-y-6">
                 <Tabs defaultValue="voice" className="space-y-4">
-                  <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-                    <TabsTrigger value="voice">Voice AI</TabsTrigger>
-                    <TabsTrigger value="vision">Vision</TabsTrigger>
-                    <TabsTrigger value="insights">Insights</TabsTrigger>
-                    <TabsTrigger value="health">Health</TabsTrigger>
-                  </TabsList>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-grid">
+                      <TabsTrigger value="voice">Voice AI</TabsTrigger>
+                      <TabsTrigger value="health">Health</TabsTrigger>
+                    </TabsList>
+
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href="http://localhost:3001"
+                        target="_blank"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-all shadow-md font-medium"
+                      >
+                        <Brain className="h-4 w-4" />
+                        Enable Camera
+                      </Link>
+                      <Link
+                        href="http://localhost:3002"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-black text-white px-4 py-2 rounded shadow-md hover:bg-gray-800"
+                      >
+                        Monitoring
+                      </Link>
+                    </div>
+                  </div>
                   <TabsContent value="voice" className="space-y-4">
                     <VoiceInteractionPanel patient={selectedPatient} conversation={currentConversation} addMessage={addMessage} isMuted={isMuted} onToggleMute={() => setIsMuted(!isMuted)} />
                   </TabsContent>
-                  <TabsContent value="vision" className="space-y-4">
-                    <CameraGrid patientId={selectedPatient.id} />
-                  </TabsContent>
-                  <TabsContent value="insights"><InsightsPanel patient={selectedPatient} conversationCount={currentConversation.length} /></TabsContent>
                   <TabsContent value="health"><HealthPanel patient={selectedPatient} /></TabsContent>
                 </Tabs>
               </div>

@@ -9,7 +9,7 @@
         "start": "node .next/standalone/server.js",
         "dev:live": "node server/live-ws.js",
         "dev:signal": "node server/signaling-server.js",
-        "dev:all": "npm run dev & node server/live-ws.js & node server/signaling-server.js",
+        "dev:all": "node scripts/dev-all.js",
         "seed": "npx tsx scripts/seed.ts",
         "lint": "eslint ."
     },
