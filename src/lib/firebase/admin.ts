@@ -30,7 +30,11 @@ function getAdminApp(): App {
   }
 
   _app = initializeApp({
-    credential: cert({ projectId, clientEmail, privateKey }),
+    credential: cert({
+      project_id: projectId,
+      client_email: clientEmail,
+      private_key: privateKey,
+    } as any),
   });
 
   return _app;
