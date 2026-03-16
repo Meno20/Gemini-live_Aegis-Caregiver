@@ -4,12 +4,15 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "dev": "next dev -p 3000",
+        "dev": "next dev -p 3001",
         "build": "next build",
-        "start": "node .next/standalone/server.js",
+        "postbuild": "xcopy /E /I /Y .next\\static .next\\standalone\\.next\\static && xcopy /E /I /Y public .next\\standalone\\public",
+        "start": "bun .next/standalone/server.js",
         "dev:live": "node server/live-ws.js",
         "dev:signal": "node server/signaling-server.js",
         "dev:all": "node scripts/dev-all.js",
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate dev",
         "seed": "npx tsx scripts/seed.ts",
         "lint": "eslint ."
     },

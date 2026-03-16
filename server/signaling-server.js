@@ -83,9 +83,9 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = 8082; // Updated port per instructions
+const PORT = process.env.PORT || 8082;
 httpServer.listen(PORT, () => {
-  console.log(`[${new Date().toISOString()}] Camera signaling server running on port ${PORT}`);
+  console.log(`Signaling server running on port ${PORT}`);
 });
 
 process.on('SIGTERM', () => {
