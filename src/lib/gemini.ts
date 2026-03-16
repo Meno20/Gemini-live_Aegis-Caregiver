@@ -14,7 +14,7 @@ export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'place
 // ============================================
 export const MODELS = {
   // Tier 1: Real-time patient-facing (< 500ms)
-  live: 'gemini-2.0-flash-live-001',
+  live: 'gemini-2.5-flash-native-audio-latest',
 
   // Tier 2: Near-real-time analysis (1-3s)
   analyst: 'gemini-2.5-flash',
@@ -22,8 +22,8 @@ export const MODELS = {
   // Tier 3: Deep reasoning, async (5-30s)
   brain: 'gemini-2.5-pro',
 
-  // Fallback (if 2.5 Flash is down)
-  fallback: 'gemini-2.0-flash',
+  // Fallback
+  fallback: 'gemini-2.5-flash-lite',
 } as const;
 
 // ============================================

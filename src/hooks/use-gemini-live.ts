@@ -12,6 +12,14 @@ export interface LiveMessage {
   role?: 'user' | 'assistant';
 }
 
+const WS_URL =
+  (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_LIVE_WS_URL) ||
+  (typeof window !== 'undefined' 
+    ? (window.location.port === '3000' 
+        ? `ws://${window.location.hostname}:8081`
+        : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}${window.location.pathname === '/' ? '/ws' : '/ws'}`)
+    : 'ws://localhost:8081');
+
 export function useGeminiLive() {
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -19,6 +27,7 @@ export function useGeminiLive() {
   
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const isRecordingRef = useRef(false);
   const [isRecording, setIsRecording] = useState(false);
   const [messages, setMessages] = useState<LiveMessage[]>([]);
   const [isTurnComplete, setIsTurnComplete] = useState(true);
@@ -26,12 +35,6 @@ export function useGeminiLive() {
   // Recording-specific refs
   const recorderNodeRef = useRef<AudioWorkletNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
-
-  const WS_URL =
-    (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_LIVE_WS_URL) ||
-    (typeof window !== 'undefined' 
-      ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`
-      : 'ws://localhost:8081');
 
   const initAudio = () => {
     if (!audioCtxRef.current) {
@@ -62,7 +65,7 @@ export function useGeminiLive() {
   };
 
   const startRecording = useCallback(async () => {
-    if (isRecording) return;
+    if (isRecordingRef.current) return;
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       await audioCtx.audioWorklet.addModule('/worklets/pcm-recorder-processor.js');
@@ -89,14 +92,15 @@ export function useGeminiLive() {
       
       recorderNodeRef.current = recorderNode;
       micStreamRef.current = stream;
+      isRecordingRef.current = true;
       setIsRecording(true);
     } catch (err) {
       console.error('[Gemini Live] Failed to start recording:', err);
     }
-  }, [isRecording]);
+  }, []);
 
   const stopRecording = useCallback(() => {
-    if (!isRecording) return;
+    if (!isRecordingRef.current) return;
     
     recorderNodeRef.current?.disconnect();
     recorderNodeRef.current = null;
@@ -104,8 +108,9 @@ export function useGeminiLive() {
     micStreamRef.current?.getTracks().forEach(track => track.stop());
     micStreamRef.current = null;
     
+    isRecordingRef.current = false;
     setIsRecording(false);
-  }, [isRecording]);
+  }, []);
 
   const playPcmChunk = (base64Data: string) => {
     if (!audioCtxRef.current) return;
@@ -204,7 +209,7 @@ export function useGeminiLive() {
       setIsConnected(false);
       setIsConnecting(false);
     };
-  }, [WS_URL]);
+  }, []);
 
   const sendText = useCallback((text: string) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) {

@@ -1,3 +1,6 @@
 {
-  "/page": "app/page.js"
+  "/carer/page": "app/carer/page.js",
+  "/dashboard/aegis/page": "app/dashboard/aegis/page.js",
+  "/page": "app/page.js",
+  "/patient/[id]/page": "app/patient/[id]/page.js"
 }

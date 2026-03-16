@@ -138,3 +138,28 @@ Files Changed/Created:
   NEW       deploy.sh
   MODIFIED  USER_CHECKLIST.md
   MODIFIED  worklog.md
+
+---
+Task ID: 5
+Agent: Main
+Date: 2026-03-15
+Task: Fix Messaging and Audio Features (API Key & Model Recovery)
+
+Work Log:
+- Diagnosed persistent connection failures and UI "hanging" during messaging.
+- Identified **Critical API Key Violation**: Discovered that the `GEMINI_API_KEY` was leaked and blocked by Google. Guided user to generate and install a new key.
+- Fixed **Port Conflict**: Identified process contention on port 8081; cleared the port to allow the WebSocket server to start.
+- Standardized Gemini Models: Updated `src/lib/gemini.ts` to use consistent model naming across the app, specifically migrating all Live features to `gemini-2.5-flash-native-audio-latest`.
+- Refined Frontend Connection: Updated `src/hooks/use-gemini-live.ts` to automatically detect local development (port 3000) and connect directly to the WebSocket server on port 8081, bypassing the Caddy proxy for faster iteration.
+- Verified Fixes:
+    - Successfully sent and received text messages in the dashboard.
+    - Verified AI voice unmuting and playback UI state.
+    - Confirmed correct persona adherence for "Maggie Thompson".
+
+Files Changed/Created:
+  MODIFIED  src/lib/gemini.ts
+  MODIFIED  server/live-ws.js
+  MODIFIED  src/app/api/tts/route.ts
+  MODIFIED  src/hooks/use-gemini-live.ts
+  MODIFIED  worklog.md
+  CREATED   scripts/test-gemini.js (Diagnostic tool)

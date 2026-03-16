@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     // 2.5 Flash supports audio output modalities
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: MODELS.analyst,
       contents: [{
         role: 'user',
         parts: [{

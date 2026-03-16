@@ -557,7 +557,7 @@ function useGeminiLive() {
     // Recording-specific refs
     const recorderNodeRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const micStreamRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
-    const WS_URL = ("TURBOPACK compile-time value", "object") !== 'undefined' && ("TURBOPACK compile-time value", "ws://localhost:8081") || (("TURBOPACK compile-time truthy", 1) ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws` : "TURBOPACK unreachable");
+    const WS_URL = ("TURBOPACK compile-time value", "object") !== 'undefined' && ("TURBOPACK compile-time value", "ws://localhost:8081") || (("TURBOPACK compile-time truthy", 1) ? window.location.port === '3000' ? `ws://${window.location.hostname}:8081` : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}${window.location.pathname === '/' ? '/ws' : '/ws'}` : "TURBOPACK unreachable");
     const initAudio = ()=>{
         if (!audioCtxRef.current) {
             const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -2077,7 +2077,7 @@ function AegisDashboard() {
         columnNumber: 5
     }, this);
 }
-_s(AegisDashboard, "H5ZZLUklnU+1ZNWOOnDxqGnI+N0=");
+_s(AegisDashboard, "8OkiFMRm9lbawLS/WiemspUvNJw=");
 _c = AegisDashboard;
 ;
 function VoiceInteractionPanel({ patient, conversation, addMessage, isMuted, onToggleMute }) {
@@ -2590,7 +2590,7 @@ function VoiceInteractionPanel({ patient, conversation, addMessage, isMuted, onT
         columnNumber: 5
     }, this);
 }
-_s1(VoiceInteractionPanel, "yEWs+6AFQcLHIbIjyao7gvGEzlc=", false, function() {
+_s1(VoiceInteractionPanel, "ek5b4yf++VLNyBT6j1wrNKMlUSo=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$gemini$2d$live$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGeminiLive"]
     ];

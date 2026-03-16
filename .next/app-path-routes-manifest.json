@@ -13,7 +13,11 @@
   "/api/reports/route": "/api/reports",
   "/api/route": "/api",
   "/api/tts/route": "/api/tts",
+  "/api/video/signaling/route": "/api/video/signaling",
   "/api/vision/route": "/api/vision",
+  "/camera/page": "/camera",
+  "/carer/page": "/carer",
   "/login/page": "/login",
-  "/page": "/"
+  "/page": "/",
+  "/patient/[id]/page": "/patient/[id]"
 }

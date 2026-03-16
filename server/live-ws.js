@@ -3,10 +3,13 @@
 // Run with: node server/live-ws.js
 // Requires GEMINI_API_KEY to be set in environment / .env
 
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+import 'dotenv/config';
+import { WebSocketServer, WebSocket } from 'ws';
+import { GoogleGenAI } from '@google/genai';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-const { WebSocketServer, WebSocket } = require('ws');
-const { GoogleGenAI } = require('@google/genai');
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 if (!GEMINI_API_KEY) {
@@ -18,6 +21,8 @@ const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,
   httpOptions: { apiVersion: 'v1alpha' }
 });
+
+const LIVE_MODEL = 'gemini-2.5-flash-native-audio-latest';
 const PORT = Number(process.env.LIVE_WS_PORT) || 8081;
 
 // Patient profiles (in production, fetch from database)
@@ -168,7 +173,7 @@ NEVER: argue, correct, raise voice, use logic/reasoning, say "calm down"`;
         console.log(`[Aegis Live] Connecting to Gemini Live for ${currentPatient.name}...`);
         
         geminiSession = await ai.live.connect({
-          model: 'gemini-2.5-flash-native-audio-latest',
+          model: LIVE_MODEL,
           config: {
             responseModalities: ['AUDIO'],
             systemInstruction: {

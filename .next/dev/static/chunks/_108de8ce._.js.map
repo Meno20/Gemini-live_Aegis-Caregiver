@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Meno/Gemini-live-version2/src/app/page.tsx"],"sourcesContent":["\"use client\";\n\nimport { useEffect } from \"react\";\nimport { useRouter } from \"next/navigation\";\n\nexport default function Home() {\n  const router = useRouter();\n\n  useEffect(() => {\n    router.push(\"/carer\");\n  }, [router]);\n\n  return (\n    <div className=\"min-h-screen bg-slate-950 flex items-center justify-center\">\n      <div className=\"flex flex-col items-center gap-4\">\n        <div className=\"h-12 w-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin\" />\n        <p className=\"text-emerald-500 font-medium animate-pulse\">Loading Aegis Portal...</p>\n      </div>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;AAEA;AACA;;;AAHA;;;AAKe,SAAS;;IACtB,MAAM,SAAS,IAAA,kJAAS;IAExB,IAAA,0KAAS;0BAAC;YACR,OAAO,IAAI,CAAC;QACd;yBAAG;QAAC;KAAO;IAEX,qBACE,6LAAC;QAAI,WAAU;kBACb,cAAA,6LAAC;YAAI,WAAU;;8BACb,6LAAC;oBAAI,WAAU;;;;;;8BACf,6LAAC;oBAAE,WAAU;8BAA6C;;;;;;;;;;;;;;;;;AAIlE;GAfwB;;QACP,kJAAS;;;KADF"}},
+    {"offset": {"line": 72, "column": 0}, "map": {"version":3,"sources":["file:///C:/Meno/Gemini-live-version2/node_modules/next/navigation.js"],"sourcesContent":["module.exports = require('./dist/client/components/navigation')\n"],"names":[],"mappings":"AAAA,OAAO,OAAO","ignoreList":[0]}}]
+}
