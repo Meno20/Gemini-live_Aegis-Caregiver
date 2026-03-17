@@ -42,27 +42,64 @@ Each patient has a personalized AI companion that knows their history, preferenc
 ## 🛠️ Technology Stack
 
 - **Frontend**: Next.js 16 + TypeScript + Tailwind CSS
-- **UI Components**: shadcn/ui (New York style)
+- **Package Manager**: Bun (recommended) or npm
 - **Database**: Prisma ORM + SQLite
-- **Authentication**: NextAuth.js
-- **AI**: Gemini Live API (LLM + VLM + TTS + ASR)
-- **Charts**: Recharts
-- **State**: Zustand + TanStack Query
+- **AI**: Gemini 2.0 Flash (Live API) + Vision Analysis
+- **Servers**: 
+  - Next.js Web: Port 3001
+  - Live WebSocket: Port 8081
+  - Signaling Server: Port 8082
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Judge Testing)
+
+To test the full suite, follow these steps:
 
 ```bash
-# Install dependencies
-bun install
+# 1. Install dependencies
+bun install   # or npm install
 
-# Set up database
-bun run db:push
+# 2. Configure Environment
+# Ensure .env has: GEMINI_API_KEY=your_key
 
-# Start development server
-bun run dev
+# 3. Initialize Database
+npx prisma db push
+npx tsx scripts/seed.ts
+
+# 4. Start All Services
+npm run dev:all
 ```
 
-Open your browser to see the application running.
+Once running, access the dashboard at: **[http://localhost:3001](http://localhost:3001)**
+
+---
+
+## ⚖️ Judge Testing Guide (Reproducible)
+
+Follow these scenarios to experience the core value of Aegis.
+
+### Scenario 1: The Caregiver Dashboard (First Look)
+1. Login with **`susan@aegis.care / demo123`**.
+2. **Observe the Live State**: Look at the "Live Health Monitor" (left column). You'll see real-time updates for Maggie's agitation, medication, and meal status.
+3. **Verify Interactive UX**: Click through the tabs (**Conversation**, **Timeline**, **Insights**, **Stories**) to see the depth of data integration.
+
+### Scenario 2: The Memory companion (Live WS)
+1. Go to the **Conversation** tab.
+2. **Standard Question**: Type or use voice to ask *"Where is Bob?"*.
+3. **Observation**: Aegis identifies Bob is Maggie's deceased husband and redirects her to a fond memory of their wedding rather than simply saying "he's dead" (which causes distress in dementia patients).
+4. **Repetition Logic**: Ask the same question again. Aegis will detect the repetition and adapt its tone to remain infinitely patient.
+
+### Scenario 3: Behavioral Insights (VLM Analysis)
+1. Go to the **Insights** tab.
+2. **Pattern Detection**: View the "Hourly Agitation Level" chart. 
+3. **The "Sundowning" Insight**: Look for the yellow highlight between 4 PM and 7 PM. This demonstrates the AI's ability to detect the "Sundowning" pattern common in Alzheimer's patients.
+4. **Actionable Recommendations**: Read the "AI Recommendations" at the bottom of the page (e.g., "Schedule high-focus activities before 3 PM").
+
+### Scenario 4: Cross-Device Signaling
+1. Open [http://localhost:3001/camera-viewer](http://localhost:3001/camera-viewer) in a separate tab or window (simulating a camera in the patient's room).
+2. Go back to the main Carer Dashboard.
+3. Observe how the Signaling Server (Port 8082) bridges the two, enabling real-time status updates between the "Camera" and the "Caregiver Interface".
+
+---
 
 ## 🔐 Demo Accounts
 
@@ -72,51 +109,11 @@ Open your browser to see the application running.
 | jennifer@aegis.care | demo123 | Caregiver (Bill) |
 | admin@aegis.care | admin123 | Administrator |
 
-## 📁 Project Structure
-
-```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── api/               # API routes
-│   │   ├── auth/          # NextAuth.js handlers
-│   │   ├── monitor/       # Main monitoring API
-│   │   └── insights/      # Analytics API
-│   └── page.tsx           # Main dashboard
-├── components/            # React components
-│   ├── ui/               # shadcn/ui components
-│   ├── dashboard/        # Dashboard widgets
-│   ├── patient/          # Patient-specific components
-│   └── insights/         # Analytics components
-├── hooks/                # Custom React hooks
-└── lib/                  # Core libraries
-    ├── gemini/           # Gemini AI integration
-    ├── monitoring/       # Vision/audio analyzers
-    └── interventions/    # Intervention coordinator
-```
-
-## 🎬 Demo Video
-
-Watch our 4-minute demo showcasing:
-1. Voice interaction with memory prosthetic
-2. Patient profile switching
-3. Behavioral insights and pattern detection
-4. Life story preservation
-5. Real-time alerts
-
-## 🏆 Impact
-
-- **For Patients**: Preserved dignity, reduced agitation, maintained identity
-- **For Caregivers**: Reduced stress, proactive support, peace of mind
-- **For Healthcare**: Fewer hospitalizations, better outcomes, lower costs
-
-One prevented hospitalization = $15,000 saved.  
-Aegis costs $50/month.  
-That's **300x ROI**.
-
-## 📄 License
-
-MIT License - Built with ❤️ for the dementia care community.
+## 🎬 Demo Video & Slides
+- **Impact Paper**: [DEMO_GUIDE.md](file:///c:/Meno/Gemini-live/Gemini-live-version2/DEMO_GUIDE.md)
+- **Problem Space**: See the "The Problem" section above.
 
 ---
 
 **Aegis Caregiver** - *It remembers when they can't* 🛡️
+Built with ❤️ for the dementia care community.
